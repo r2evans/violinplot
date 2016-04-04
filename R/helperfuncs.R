@@ -1,0 +1,25 @@
+# http://stackoverflow.com/questions/29125019/get-margin-line-locations-mgp-in-user-coordinates
+line2user <- function(line, side) {
+  lh <- par('cin')[2] * par('cex') * par('lheight')
+  x_off <- diff(grconvertX(0:1, 'inches', 'user'))
+  y_off <- diff(grconvertY(0:1, 'inches', 'user'))
+  switch(side,
+         `1` = par('usr')[3] - line * y_off * lh,
+         `2` = par('usr')[1] - line * x_off * lh,
+         `3` = par('usr')[4] + line * y_off * lh,
+         `4` = par('usr')[2] + line * x_off * lh,
+         stop("side must be 1, 2, 3, or 4", call.=FALSE))
+}
+
+merge.list <- function (...) 
+{
+  realmerge <- function(x, y) {
+    if (length(x) == 0) return(y)
+    if (length(y) == 0) return(x)
+    i <- is.na(match(names(y), names(x)))
+    if (any(i)) x[names(y)[which(i)]] <- y[which(i)]
+    x
+  }
+
+  Reduce(realmerge, list(...))
+}
