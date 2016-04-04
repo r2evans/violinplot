@@ -4,6 +4,8 @@ violinplot
 
 Violin plot is a method for plotting numeric data using a rotated/mirrored kernel density plot. Other implementations exist (namely from [ggplot2](https://github.com/hadley/ggplot2)) that provide extensive customization. This package provides an alternative implementation that relies solely on base graphics, yet still provides methods for `data.frame`, `matrix`, `list`, `numeric` vectors, and `formula`.
 
+There is another base-graphics implementation of violin plots, [here](https://cran.r-project.org/web/packages/vioplot/index.html), but it hasn't been updated since 2005 and its URL link is dead. It does not support all of the methods and functionality that this package supplies.
+
 Installation
 ------------
 

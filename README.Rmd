@@ -22,6 +22,10 @@ provide extensive customization. This package provides an alternative
 implementation that relies solely on base graphics, yet still provides
 methods for `data.frame`, `matrix`, `list`, `numeric` vectors, and `formula`.
 
+There is another base-graphics implementation of violin plots,
+[here](https://cran.r-project.org/web/packages/vioplot/index.html),
+but it hasn't been updated since 2005 and its URL link is dead.
+
 ## Installation
 
 It's not yet submitted to CRAN, so the only option currently is to
