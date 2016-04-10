@@ -210,9 +210,12 @@ violinplot.formula <- function(formula, data = NULL, ...,
                         na.action = NULL, drop.unused = FALSE) {
   if (missing(formula) || (length(formula) < 2L)) 
     stop("'formula' missing or incorrect")
+  eframe <- parent.frame()
   m <- match.call(expand.dots = FALSE)
-  if (is.matrix(eval(m$data, parent.frame()))) 
-    m$data <- as.data.frame(data)
+  md <- eval(m$data, eframe)
+  if (is.matrix(md)) 
+    md <- as.data.frame(data)
+
   m$... <- NULL
   m$na.action <- na.action
   m[[1L]] <- quote(stats::model.frame)
@@ -225,6 +228,9 @@ violinplot.formula <- function(formula, data = NULL, ...,
 
   dots <- list(...)
   dots <- dots[ names(dots) != '' ]
+  ## suggested from graphics:::plot.formula and
+  ## http://developer.r-project.org/nonstandard-eval.pdf dots <-
+  # lapply(m$..., eval, md, eframe)
 
   spl <- 
     if (rhsonly) {
