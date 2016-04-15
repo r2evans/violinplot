@@ -1,6 +1,6 @@
 Package: violinplot
 Title: Violin plots for R using base graphics
-Version: 0.5.1.9000
+Version: 0.5.2.9000
 Authors@R: "Bill Evans <Bill@8PawExpress.com> [aut,cre]"
 Description: Violin plot is a method for plotting numeric data using a
     rotated/mirrored kernel density plot. Other implementations exist

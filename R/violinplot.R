@@ -70,15 +70,21 @@
 #' @param group.lines if logical and \code{TRUE}, then lines are drawn
 #'   to visually group plots, for all but the lowest-level; if
 #'   numeric, indicating which of the levels to apply lines.
-#' @param density.auto logical, whether to auto-scale the density
-#'   curves to the maximum density of all curves, default \code{TRUE}.
-#' @param density.scale if logical and \code{TRUE}, include the scale
+#' @param density.scale character, how far to auto-scale the density
+#'   curves; if \code{"all"}, then the 'widest' curve will dictate the
+#'   width of all others, and one wide one may drive all to be rather
+#'   skinny; if "group", then the logic is contained within each
+#'   top-level grouping (e.g., last variable in a formula); if "each",
+#'   then all plots are individually scaled so that the max widths are
+#'   all the same; if "none", no scaling is done. Default:
+#'   \code{"each"}.
+#' @param density.labels if logical and \code{TRUE}, include the scale
 #'   (+/- percentages) for the density scales; if a positive integer,
 #'   the columns (left-to-right) to show them on; if a negative
 #'   integer, right-to-left. Default \code{TRUE} (all).
 #' @param density.ticks logical or integer, tick marks on each
 #'   grouping line (lowest level only). Default \code{TRUE}. This is
-#'   forced to \code{TRUE} if \code{density.scale} is not
+#'   forced to \code{TRUE} if \code{density.labels} is not
 #'   \code{FALSE}.
 #' @param density.args list of arguments to pass to
 #'   \code{\link{density}}. The parameter \code{n} has a default value
@@ -102,7 +108,7 @@
 #'   If \code{TRUE}, horizontal gray lines are plotted. If
 #'   \code{FALSE} or \code{NULL}, grid is not called.
 #' @param text.cex numeric, cex to use for group labels; the scale (if
-#'   \code{density.scale} is TRUE) is shown at 70\% of this.
+#'   \code{density.labels} is TRUE) is shown at 70\% of this.
 #' @param mar if logical and \code{TRUE}, calculate the margins based
 #'   on the presence of \code{main}, \code{group.labels}, and
 #'   \code{legend}; if numeric, the margins will be assigned to this
@@ -300,7 +306,8 @@ violinplot.default <- function(x, ..., at = NULL, width = 1, names = NULL,
                         col = NULL, border = 1,
                         xlab = NULL, groups = NULL, group.spacers = 1,
                         group.labels = NULL, group.lines = TRUE,
-                        density.auto = TRUE, density.scale = TRUE, density.ticks = TRUE,
+                        density.scale = c("each", "group", "all", "none"),
+                        density.labels = TRUE, density.ticks = TRUE,
                         density.args = NULL, boxplot.args = TRUE,
                         legend.args = NULL, axis.args = TRUE,
                         grid.args = TRUE, text.cex = 1,
@@ -321,6 +328,13 @@ violinplot.default <- function(x, ..., at = NULL, width = 1, names = NULL,
     names <- as.character(m[ nms %in% c("x", "") ])
     names(args) <- names
   }
+
+  density.scale <- 
+    if (is.logical(density.scale) && density.scale) {
+      "all"
+    } else {
+      match.arg(density.scale, c("each", "group", "all", "none"))
+    }
 
   defdensityargs <- list(n = 32L)
   defgridargs <- list(nx = NA, ny = NULL, col = "gray", lty = "dotted", lwd = 0.2)
@@ -381,11 +395,29 @@ violinplot.default <- function(x, ..., at = NULL, width = 1, names = NULL,
     if (d$n == 0) NA else range(d$x, na.rm = TRUE)
   }), na.rm = TRUE)
   densmax <- 
-    if (density.auto) {
-      max(sapply(dens, function(d) {
-        if (d$n == 0) NA else max(d$y, na.rm = TRUE)
-      }), na.rm = TRUE)
-    } else 1
+    switch(density.scale,
+           "all" = {
+             rep(max(sapply(dens, function(d) {
+               if (d$n == 0) NA else max(d$y, na.rm = TRUE)
+             }), na.rm = TRUE), length(dens))
+           },
+           "group" = {
+             rep(unname(apply(sapply(groups[[1]], function(ind) {
+               sapply(dens[ind], function(d) {
+                 if (d$n == 0) NA else max(d$y, na.rm = TRUE)
+               })
+             }), 2, max, na.rm = TRUE)), each = length(dens) / length(groups[[1]]))
+           },
+           "each" = {
+             qx <- unname(sapply(dens, function(d) {
+               if (d$n == 0) NA else max(d$y, na.rm = TRUE)
+             }))
+             ifelse(is.na(qx), 1, qx)
+           },
+           1)
+
+  
+
 
   if (is.null(group.labels)) group.labels <- rep(TRUE, ngrps)
 
@@ -533,13 +565,14 @@ violinplot.default <- function(x, ..., at = NULL, width = 1, names = NULL,
     
     # print all labels
     ign <- sapply(1:ngrps, function(i) {
-      if (group.labels[i])
+      if (group.labels[i]) {
         mapply(function(x, txt, ln, adj) mtext(txt, side = 1, line = ln, at = x,
                                                adj = adj, cex = text.cex),
                c(line2user(line = 0, side = 2), labels[[i]]),
                c(groupnames[[i]], names(labels[[i]])),
                sum(group.labels) - cumsum(group.labels)[i],
                c(1, rep(0.5, length(labels[[i]]))))
+      }
     })
 
   } # if (! is.null(groups))
@@ -555,8 +588,8 @@ violinplot.default <- function(x, ..., at = NULL, width = 1, names = NULL,
           }
         points(rep(at[i], dens[[i]]$n), dens[[i]]$x, pch = 16, col = thiscol)
       } else {
-        polygon(c(at[i] + dens[[i]]$y / denom,
-                  at[i] - rev(dens[[i]]$y) / denom),
+        polygon(c(at[i] + dens[[i]]$y / denom[[i]],
+                  at[i] - rev(dens[[i]]$y) / denom[[i]]),
                 c(dens[[i]]$x, rev(dens[[i]]$x)),
                 col = col[i], border = border[i])
       }
