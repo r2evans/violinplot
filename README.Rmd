@@ -25,6 +25,9 @@ methods for `data.frame`, `matrix`, `list`, `numeric` vectors, and `formula`.
 There is another base-graphics implementation of violin plots,
 [here](https://cran.r-project.org/web/packages/vioplot/index.html),
 but it hasn't been updated since 2005 and its URL link is dead.
+(**Edit**: since I wrote this package, `vioplot` has been updated.
+While I'm using *this* package without problem, I've had no immediate
+need to compare features.)
 
 ## Installation
 
