@@ -6,6 +6,8 @@ Violin plot is a method for plotting numeric data using a rotated/mirrored kerne
 
 There is another base-graphics implementation of violin plots, [here](https://cran.r-project.org/web/packages/vioplot/index.html), but it hasn't been updated since 2005 and its URL link is dead. It does not support all of the methods and functionality that this package supplies. (**Edit**: since I wrote this package, `vioplot` has been updated. While I'm using *this* package without problem, I've had no immediate need to compare features.)
 
+**Note in 2020**: don't be alarmed that there have been no significant edits in several years, it still works well with base graphics and R-4.0.2 (my current version).
+
 Installation
 ------------
 
